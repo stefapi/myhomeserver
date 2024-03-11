@@ -190,3 +190,4 @@ venv
 
 # Translation binaries
 messages.mo
+/dist/
