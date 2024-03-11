@@ -1,0 +1,91 @@
+@startuml
+
+package "User's Laptop" {
+    :User: as UA
+}
+node "Easy Server" {
+  [Firewall] as FW
+  [VPN]
+  [Command Line Interface] as CLI #Crimson
+  [Postfix Dovecot\nRspamd Clamav] as MAIL
+  [Bind] as DNS
+  [Reverse Proxy] as RP
+  component "Docker"
+  [Local Web Server] as Web
+  collections "Local Web Applications" as LWA
+    note bottom
+    Could be Pihole / Rspamd
+    or Monit / Munin
+    for example
+    end note
+  agent "Easyserver Local Agent" as AG #Crimson
+    note right
+    received order through API
+    execute with shell scripts
+    end note
+  Rectangle "Action on System" as SYS
+}
+
+component "Docker" {
+    package UI as "UI for EasyServer"
+    package WAS as "Web Application Servers"
+    note left
+    deployed by
+    the local agent
+    end note
+    database "Database Servers" as DB
+    note left
+    deployed by
+    the local agent
+    end note
+}
+
+package WAS {
+  folder "WS1" {
+  }
+  folder "WS2" {
+  }
+  folder "WS3" {
+  }
+}
+
+package UI {
+    folder FE as "Front end" #Crimson
+    database DE as "Database" #Crimson
+    component BE as "Back end" #Crimson
+}
+
+database "Database Servers" as DB {
+  frame "DB1" {
+  }
+  frame "DB2" {
+  }
+}
+  UA -[#LimeGreen,thickness=5]-> FW : "Browse"
+  UA-->DNS : DNS Resolve
+  UA-->FW : Mail Client
+  UA-->FW : SSH Cnx.
+  FW-[#LimeGreen,thickness=5]->RP :  Browse
+  FW-->VPN : SSH Cnx.
+  FW-->MAIL : Mail Client
+  VPN-->CLI
+  AG-[#RoyalBlue,thickness=5]->DNS : DNS Conf.
+  AG-[#RoyalBlue,thickness=5]->MAIL : Mailbox Conf.
+  AG-[#RoyalBlue,thickness=5]->RP : Site conf.
+  CLI-[#Crimson,thickness=3](0->AG : API on Socket
+  RP -[#LimeGreen,thickness=5]->FE : Routing
+  BE-[#Crimson,thickness=3](0->AG : API on Socket
+  BE<-[#Deeppink,thickness=3]->DE
+  FE<-[#Deeppink,thickness=3](0->BE
+  AG-[#RoyalBlue,thickness=5]->Docker : Deployment with Docker
+  AG-[#RoyalBlue,thickness=5]->SYS: Shell Commands
+  Web -[#LimeGreen,thickness=5]-> LWA: Serve
+  RP -[#LimeGreen,thickness=5]-> WS1: Routing
+  RP -[#LimeGreen,thickness=5]-> Web: Routing
+  RP -[#LimeGreen,thickness=5]-> WS2: Routing
+  RP -[#LimeGreen,thickness=5]-> WS3: Routing
+  WS1 --> DB1 : Database Queries
+  WS2 --> DB2 : Database Queries
+  WS3 --> DB1 : Database Queries
+
+@enduml

@@ -1,0 +1,51 @@
+// Do NOT EDIT, THIS FILE IS GENERATED FROM dev/templates/manpage.man.adoc.jinja
+= myeasyserver(1)
+stephane apiou
+v0.1.0
+:doctype: manpage
+:manmanual: myeasyserver
+:mansource: myeasyserver
+:man-linkstyle: pass:[blue R < >]
+
+== Name
+
+myeasyserver - A service which deploys the home web server platform on a Raspberry Pi or a VPS
+
+== Synopsis
+
+*myeasyserver* [_OPTION_]... _FILE_...
+
+== Description
+
+A service wich deploys e home web platform on a Raspberry Pi or a VPS
+This is usable for debian, Ubuntu systems. other Platforms are planned
+
+== Options
+
+*-o, --out-file*=_OUT_FILE_::
+  Write result to file _OUT_FILE_.
+
+*-c, --capture*::
+  Capture specimen if it's a picture of a life form.
+
+== Exit status
+
+*0*::
+  Success.
+
+
+*1*::
+  Failure.
+
+== Author
+
+Written by stephane apiou, <stephane@apiou.org>
+
+== Resources
+
+*Project web site:* https://github.com/steapi/myeasyserver/
+
+== Copying
+
+Copyright (c) 2024 stephane apiou. +
+Free use of this software is granted under the terms of Apache License.

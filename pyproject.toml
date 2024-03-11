@@ -1,0 +1,53 @@
+[tool.poetry]
+name = "myeasyserver"
+version = "0.1.0"
+description = "A service which deploys the home web server platform on a Raspberry Pi or a VPS"
+authors = ["stephane apiou <stephane@apiou.org>"]
+documentation = "https://homeserver.readthedocs.io"
+homepage = "https://github.com/steapi/myeasyserver/"
+repository = "https://github.com/steapi/myeasyserver/"
+readme = "README.md"
+classifiers = [
+    "Topic :: Software Development :: Build Tools",
+    "Topic :: Software Development :: Libraries :: Python Modules"]
+license = "Apache"
+
+[custom.params]
+package="myeasyserver"
+srcdir="myeasyserver"
+man-section="1"
+long-description="""A service wich deploys e home web platform on a Raspberry Pi or a VPS
+This is usable for debian, Ubuntu systems. other Platforms are planned"""
+
+[tool.poetry.scripts]
+myeasyserver = "myeasyserver:main"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+fastapi = "^0.110.0"
+fastapi-camelcase="^2.0.0"
+fastapi-debug-toolbar="^0.6.2"
+starlette-Admin="^0.13.0"
+passlib = "^1.7.4"
+python-jose = "^3.3.0"
+python-multipart = "^0.0.9"
+uvicorn = "^0.27.post1"
+python-slugify = "^8.0.1"
+python-dotenv = "^1.0.1"
+toml = "^0.10.0"
+
+[tool.poetry.dev-dependencies]
+flake8 = "^7.0.0"
+pylint = "^3.0.2"
+invoke = "^1.7.3"
+yamllint= "*"
+mkdocs = "^1.4.2"
+mkdocs-material = "^9.5.12"
+mkdocs-material-extensions = "^1.3.1"
+
+[tool.black]
+line-length = 120
+
+[build-system]
+requires = ["poetry-core>=1.0.0", "setuptools>=45", "wheel", "setuptools_scm[toml]"]
+build-backend = "poetry.core.masonry.api"

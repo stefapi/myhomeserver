@@ -1,0 +1,46 @@
+== Development
+
+To work on gvpm, you'll need a Python3 environment. On Windows and Mac, perhaps the easiest method is to start with an https://www.continuum.io/downloads[Anaconda Python3 environment].
+
+Clone from git repository
+
+To run without installing (you may need to use `python3):
+
+[source,bash]
+----
+export PYTHONPATH=/path/to/source-dir
+python gvpm.py [arguments]
+
+----
+
+For information on working on translations, see:
+
+== Translations
+
+The extract_messages command is comparable to the GNU xgettext program: it can extract localizable messages from a variety of difference source files, and generate a PO (portable object) template file from the collected messages.
+
+[source,bash]
+----
+./setup.py extract_messages --output-file po/messages.pot
+----
+
+The init_catalog command is basically equivalent to the GNU msginit program: it creates a new translation catalog based on a PO template file (POT).
+
+[source,bash]
+----
+ $ ./setup.py init_catalog -l fr -i po/messages.pot  -o po/fr/messages.po
+----
+
+The update_catalog command is basically equivalent to the GNU msgmerge program: it updates an existing translations catalog based on a PO template file (POT).
+
+[source,bash]
+----
+ $ ./setup.py update_catalog -l fr -i po/messages.pot  -o po/fr/messages.po
+----
+
+The compile_catalog command is similar to the GNU msgfmt tool, in that it takes a message catalog from a PO file and compiles it to a binary MO file.
+
+[source,bash]
+----
+./setup.py compile_catalog --directory po --locale fr -i po/fr/messages.po -o po/fr/messages.mo
+----
