@@ -154,7 +154,7 @@ class config_file():
         cur_config = config
         treated = []
         for elem in options:
-            treated += elem
+            treated.append(elem)
             if len(cur_ref) == 1 and "<>" in cur_ref:
                 ref_section = "<>"
             else:
@@ -223,7 +223,7 @@ class config_file():
         old_config = None
         treated = []
         for elem in args:
-            treated += elem
+            treated.append(elem)
             if len(cur_ref) == 1 and "<>" in cur_ref:
                 ref_section = "<>"
             else:
@@ -264,7 +264,7 @@ class config_file():
         cur_config = self.config
         treated = []
         for elem in args:
-            treated += elem
+            treated.append(elem)
             if len(cur_ref) == 1 and "<>" in cur_ref:
                 ref_section = "<>"
             else:
@@ -302,7 +302,7 @@ class config_file():
         treated = []
         old_config = None
         for elem in args:
-            treated += elem
+            treated.append(elem)
             if len(cur_ref) == 1 and "<>" in cur_ref:
                 ref_section = "<>"
             else:
@@ -382,7 +382,7 @@ class config_file():
         cur_ref = self.default_config
         treated= []
         for elem in args:
-            treated += elem
+            treated.append(elem)
             if len(cur_ref) == 1 and "<>" in cur_ref:
                 ref_section = "<>"
             else:

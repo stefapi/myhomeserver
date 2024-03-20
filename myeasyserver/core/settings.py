@@ -1,4 +1,4 @@
-#  Copyright (c) 2022  stefapi
+#  Copyright (c) 2024  stefapi
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -12,6 +12,7 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 #
+
 
 import os
 import tempfile
@@ -101,7 +102,7 @@ class AppDirectories:
             Path(dir).mkdir(parents=True, exist_ok=True)
 
 class AppSettings():
-    def __init__(self, type : EnumSettings, args, default_config, params_link):
+    def __init__(self, type : EnumSettings, conf_file, args, default_config, params_link):
         self.default_config = default_config
         self.config = default_config.copy()
         self.params_link = params_link
@@ -111,8 +112,8 @@ class AppSettings():
         if type != EnumSettings.System and type != EnumSettings.User:
             dotenv.load_dotenv(Path(self.path.LIB_DIR).parent.joinpath(".env"))
 
-        if self.args.conf is not None:
-            self.etc_conf = config_file(default_config, self.args.conf)
+        if conf_file is not None:
+            self.etc_conf = config_file(default_config, conf_file)
             self.local_conf = None
         else:
             self.etc_conf = config_file(default_config, os.path.join(self.path.SYSCONF_DIR, "config.toml"))
