@@ -11,10 +11,14 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
+import signal
+import sys
+from time import sleep
 
 import uvicorn
 import json
 import os
+from myeasyserver.core.daemon import start_daemon
 
 from myeasyserver.app import app_class
 from ..version import __software__
@@ -23,20 +27,25 @@ __SOFTWARE__ = __software__.upper()
 class backend_application(app_class):
 
     default_config = {
+        'application': {
+            'pid_file': '/var/run/' + __software__ + '.pid',
+        }
     }
 
     params_link = {
+        'application.pid_file': ['pid_file', __SOFTWARE__ + '_PID_FILE', 'PID_FILE'],
     }
     def __init__(self):
         pass
 
     @staticmethod
     def subparser():
-        return ( "serve", "Start MyeasyServer backend")
+        return ( "serve", "Start %s backend"%__software__ )
 
     @staticmethod
     def params(parser):
-        pass
+        parser.add_argument('--pid_file', default=None, help='pid file')
+        parser.add_argument('--daemon', help='start as daemon', action='store_true')
 
     def test_name(self, name):
         return name == 'myeasysrv'
@@ -58,7 +67,7 @@ class backend_application(app_class):
                 serverconf['port'] = 8080
             if config['internal.development'] == True:
                 serverconf['reload'] = True
-                serverconf['reload_dirs'] = ["myeasyserver"]
+                serverconf['reload_dirs'] = [__software__]
         else: # production configuration here
             serverconf = {
                 'log_level': 'debug' if config['application.verbose'] else 'error',
@@ -69,8 +78,19 @@ class backend_application(app_class):
             else:
                 serverconf['host'] = config['application.ip_address']
                 serverconf['port'] = config['application.port']
-        uvicorn.run(
-            "myeasyserver.backend.webserver:app",
-            **serverconf
-        )
+        serverconf['app'] = "%s.backend.webserver:app"%__software__
+        # Start uvicorn as a daemon
+        try:
+            if config.args.daemon:
+                return start_daemon(uvicorn.run, serverconf, config['application.pid_file'])
+            else:
+                try:
+                    uvicorn.run(**serverconf)
+                except KeyboardInterrupt:
+                    print("caught keyboard interrupt, exiting")
+        except Exception as e:
+            print("Error:", str(e))
+            sys.exit(1)
+
+        return 0
 

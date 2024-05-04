@@ -109,7 +109,7 @@ for src, dst_list in files.items():
         val = macros.get(match.group(1))
         src = re.sub(r'\{\{(\w+)\}\}', val, src)
     with open(src, "r") as file:
-        template = jinja2.Template(file.read())
+        template = jinja2.Template(file.read(), autoescape=True)
         string = template.render(macros)
         for dst in dst_list:
             with open(dst, "w") as ofile:

@@ -20,6 +20,7 @@ from typing import Annotated
 from typing import Optional
 import base64
 
+from debug_toolbar.middleware import DebugToolbarMiddleware
 from starlette.requests import Request
 from starlette.status import HTTP_403_FORBIDDEN
 from starlette.responses import RedirectResponse, Response, JSONResponse
@@ -285,8 +286,9 @@ params_link_app = apps_store.update_params_link(params_link)
 default_config_app = apps_store.update_default_config(default_config)
 config = create_config(args.conf, args, params_link_app, default_config_app, args.debug_do_not_use)
 
-app = FastAPI()
+app = FastAPI(debug=True)
 
+app.add_middleware(DebugToolbarMiddleware)
 
 @app.on_event("startup")
 async def system_startup():

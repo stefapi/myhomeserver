@@ -15,6 +15,7 @@
 
 
 import os
+import re
 import tempfile
 import json
 from pathlib import Path
@@ -184,8 +185,17 @@ class AppSettings():
                 path = items if path == None else path+'.'+items
             if path in self.params_link:
                 option = self.params_link[path][0]
-                if option is not None and  hasattr(self.args, option):
-                    return getattr(self.args, option)
+                match = re.findall(r"^([^\[\]]+)(\[([0-9]+)\])?$", option)
+                if len(match) == 0:
+                    return None
+                if option is not None and  hasattr(self.args, match[0][0]):
+                    if len(match[0][1]) == 0:
+                        return getattr(self.args, match[0][0])
+                    else:
+                        arg = getattr(self.args, match[0][0])
+                        if isinstance(arg, list):
+                            return arg[int(match[0][2])]
+                        return None
             return None
 
         # apply command line options

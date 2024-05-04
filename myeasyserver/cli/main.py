@@ -17,6 +17,7 @@ import json
 import os
 
 from myeasyserver.app import app_class
+from ..services.remote_execute import remote_execute
 from ..version import __software__
 
 __SOFTWARE__ = __software__.upper()
@@ -27,22 +28,30 @@ default_config = {
 params_link = {
 }
 
+commands = {
+    "install_docker": [ remote_execute, 'install_docker', {}, 'Install docker system' ],
+}
+
 class cli_application(app_class):
     def __init__(self):
         pass
 
     @staticmethod
     def subparser():
-        return ( "cli", "Command line tool to manage myEasyServer" )
+        epilog = "Commands are the following:\n\n"
+        for key, value in commands.items():
+            epilog += "    %s: %s\n"%(key, value[3])
+        return ( "cli", "Command line tool to manage %s"%__software__, epilog )
 
     @staticmethod
     def params(parser):
-        pass
+        parser.add_argument('command', nargs=1, help='command to execute')
+        parser.add_argument('parameters', nargs='*', help='parameters to pass to the command')
 
 
     def test_name(self, name):
         return name == 'myeasycli'
     def run(self, config):
-        pass
+        return 0
 
 

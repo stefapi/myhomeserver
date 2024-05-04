@@ -48,21 +48,21 @@ params_link = { # configuration attribute  [ long name option, Environment attri
     'internal.debug': ['debug_do_not_use', __SOFTWARE__ + '_DEBUG', 'DEBUG'],
     'internal.development': ['development_do_not_use', __SOFTWARE__ + '_DEVEL', 'DEVELOPMENT'],
     'application.verbose': ['verbose', __SOFTWARE__ + '_VERBOSE', 'VERBOSE'],
-    'application.ip_address': ['ip_address', __SOFTWARE__ + '_IP_ADDRESS', 'IP_ADDRESS'],
-    'application.port': ['port', __SOFTWARE__ + '_PORT', 'PORT'],
-    'application.socket': ['socket', __SOFTWARE__ + '_SOCKET', 'SOCKET'],
+    'application.ip_address': ['ip_address[0]', __SOFTWARE__ + '_IP_ADDRESS', 'IP_ADDRESS'],
+    'application.port': ['port[0]', __SOFTWARE__ + '_PORT', 'PORT'],
+    'application.socket': ['socket[0]', __SOFTWARE__ + '_SOCKET', 'SOCKET'],
 }
 
 def basic_options(parser):
     parser.add_argument('-v', '--version', help='Print version and exit', action='store_true')
-    parser.add_argument('-C', '--conf', help='Name of configuration file to read', nargs='?')
-    parser.add_argument('-w', '--write', help='write local config at program termination', action='store_true')
-    parser.add_argument('-W', '--write-conf', help='Name of configuration file to write', nargs='?')
+    parser.add_argument('-C', '--conf', help='Name of configuration file to read', nargs=1)
+    parser.add_argument('-w', '--write', help='write local config to file ./myeasyserver.toml', action='store_true')
+    parser.add_argument('-W', '--write-conf', help='Name of configuration file to write', nargs=1)
     parser.add_argument('-V', '--verbose', help='Name of configuration file', action='store_true')
 
-    parser.add_argument('-A', '--ip-address', help='IP address to bind for the server', nargs='?')
-    parser.add_argument('-p', '--port', help='port to bind for the server', nargs='?')
-    parser.add_argument('-S', '--socket', help='socket file to bind for the server', nargs='?')
+    parser.add_argument('-A', '--ip-address', help='IP address to bind for the server', nargs=1)
+    parser.add_argument('-p', '--port', help='port to bind for the server', nargs=1)
+    parser.add_argument('-S', '--socket', help='socket file to bind for the server', nargs=1)
 
     parser.add_argument('--development_do_not_use', help=argparse.SUPPRESS, action='store_true')
     parser.add_argument('--debug_do_not_use', help=argparse.SUPPRESS, action='store_true')
@@ -103,16 +103,22 @@ def main():
         parser.print_version()
         exit(0)
 
+    if args.write == True:
+        config.writeto("./myeasyserver.toml", False)
+        print("Configuration file is written to ./myeasyserver.toml. Exiting.")
+        exit(0)
     if args.write_conf is not None:
-        config.writeto(args.write_conf, False)
-        print("Configuration file is written to %s. Exiting." % args.write_conf)
+        config.writeto(args.write_conf[0], False)
+        print("Configuration file is written to %s. Exiting." % args.write_conf[0])
+        exit(0)
     if args.mode == "serve":
         run_app = backend_application()
     else:
         run_app = cli_application()
 
-    run_app.run(config)
+    return run_app.run(config)
 
 if __name__ == "__main__":
-    main()
+    ret = main()
+    exit(ret)
 

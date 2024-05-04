@@ -13,9 +13,11 @@
 #  limitations under the License.
 
 import argparse
+import textwrap
+
 
 class arg_parser():
-    def __init__(self, program, version, description, basic_options, instances_desc = None,xvpm_instances = None, generic= True):
+    def __init__(self, program, version, description, basic_options, instances_desc = None, instances = None, generic= True):
         self.version = version
         self.program = program
         self.parser = argparse.ArgumentParser(description=description)
@@ -26,15 +28,19 @@ class arg_parser():
             for key, value in instances_desc.items():
                 desc[key] = value
         if generic == True:
-            if xvpm_instances is not None and len(xvpm_instances) > 0:
+            if instances is not None and len(instances) > 0:
                 subparsers = self.parser.add_subparsers( title = desc['title'], description =desc['description'], help = desc['help'], dest = desc['dest'])
-                for instance in xvpm_instances:
+                for instance in instances:
+                    name= []
                     name = instance.subparser()
-                    sub = subparsers.add_parser(name[0], help = name[1])
+                    if len(name) > 2 and name[2] is not None:
+                        sub = subparsers.add_parser(name[0], help = name[1],formatter_class=argparse.RawDescriptionHelpFormatter, epilog=textwrap.dedent(name[2]))
+                    else:
+                        sub = subparsers.add_parser(name[0], help=name[1])
                     instance.params(sub)
         else:
-            if xvpm_instances is not None and len(xvpm_instances) > 0:
-                xvpm_instances[0].params(self.parser)
+            if instances is not None and len(instances) > 0:
+                instances[0].params(self.parser)
 
 
     def parse_args(self,args):
