@@ -35,18 +35,31 @@ default_config = {
         'verbose': False,
         'ip_address': '127.0.0.1',
         'port': 8080,
-        'socket': None
+        'socket': None,
+        'default_group': 'default',
+        'default_user': 'admin',
+        'default_password': 'changeme',
+        'default_hasher': 'argon2', # bcrypt, argon2
+        'security_max_login_attempts': 5,
+        'token_time': 48, # in hours
+        'token_long_time': 24*365*5,  # in hours (5 years)
     },
     'internal': {
+        'simulate': False,
         'development': False,
         'debug': False,
+        'noauth': False,
+        'demo': False,
     },
 }
 
 # each long name option has to be defined into basic_options
 params_link = { # configuration attribute  [ long name option, Environment attribute , .env attribute]
     'internal.debug': ['debug_do_not_use', __SOFTWARE__ + '_DEBUG', 'DEBUG'],
+    'internal.simulate': ['simulate_do_not_use', __SOFTWARE__ + '_SIMULATE', 'SIMULATE'],
     'internal.development': ['development_do_not_use', __SOFTWARE__ + '_DEVEL', 'DEVELOPMENT'],
+    'internal.noauth': ['noauth_do_not_use', __SOFTWARE__ + '_DEVEL', 'NOAUTH'],
+    'internal.demo': ['demo', __SOFTWARE__ + '_DEMO', 'DEMO'],
     'application.verbose': ['verbose', __SOFTWARE__ + '_VERBOSE', 'VERBOSE'],
     'application.ip_address': ['ip_address[0]', __SOFTWARE__ + '_IP_ADDRESS', 'IP_ADDRESS'],
     'application.port': ['port[0]', __SOFTWARE__ + '_PORT', 'PORT'],
@@ -64,9 +77,12 @@ def basic_options(parser):
     parser.add_argument('-p', '--port', help='port to bind for the server', nargs=1)
     parser.add_argument('-S', '--socket', help='socket file to bind for the server', nargs=1)
 
-    parser.add_argument('--development_do_not_use', help=argparse.SUPPRESS, action='store_true')
+    parser.add_argument('--demo', help='Enable Demo Mode', action='store_true')
+
     parser.add_argument('--debug_do_not_use', help=argparse.SUPPRESS, action='store_true')
+    parser.add_argument('--development_do_not_use', help=argparse.SUPPRESS, action='store_true')
     parser.add_argument('--simulate_do_not_use', help=argparse.SUPPRESS, action='store_true')
+    parser.add_argument('--noauth_do_not_use', help=argparse.SUPPRESS, action='store_true')
 
 
 def main():
@@ -103,6 +119,11 @@ def main():
         parser.print_version()
         exit(0)
 
+    if args.mode == "serve":
+        run_app = backend_application()
+    else:
+        run_app = cli_application()
+
     if args.write == True:
         config.writeto("./myeasyserver.toml", False)
         print("Configuration file is written to ./myeasyserver.toml. Exiting.")
@@ -111,10 +132,6 @@ def main():
         config.writeto(args.write_conf[0], False)
         print("Configuration file is written to %s. Exiting." % args.write_conf[0])
         exit(0)
-    if args.mode == "serve":
-        run_app = backend_application()
-    else:
-        run_app = cli_application()
 
     return run_app.run(config)
 

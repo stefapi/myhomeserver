@@ -2,7 +2,7 @@ import json
 
 import re
 from pathlib import Path
-from myeasyserver.webserver import app
+from myeasyserver.backend.webserver import app
 from myeasyserver.core.settings import AppDirectories, EnumSettings
 
 """Script to export the ReDoc documentation page into a standalone HTML file."""

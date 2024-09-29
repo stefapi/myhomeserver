@@ -28,6 +28,10 @@ class app_class:
         pass
 
     @staticmethod
+    def test_name(name):
+        return False
+
+    @staticmethod
     def params(parser):
         pass
     def update_params_link(self,params_link):

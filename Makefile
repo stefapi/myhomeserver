@@ -8,6 +8,7 @@ DOCKER ?= docker
 DOCKER_COMPOSE ?= docker-compose
 NODE ?= node
 POETRY ?= poetry
+ALEMBIC ?= alembic
 NPM_BIN ?= npm
 YARN_BIN ?= yarn
 DEPS_SCRIPT ?= packaging/bundle/deps.py
@@ -60,12 +61,11 @@ export DEBUG_PYSCRIPT
 
 BROWSER := $(PYTHON) -c "$$BROWSER_PYSCRIPT"
 
-help: ##    Details Makefile help
-	@$(PYTHON) -c "$$PRINT_HELP_PYSCRIPT" < $(MAKEFILE_LIST)
-
 .ONESHELL:
 
-.PHONY: docs
+
+help: ##    Details Makefile help
+	@$(PYTHON) -c "$$PRINT_HELP_PYSCRIPT" < $(MAKEFILE_LIST)
 
 outdated: ## 🚧 Check for outdated dependencies
 	$(POETRY) show --outdated
@@ -156,6 +156,12 @@ purge: clean ## 🧹 Remove everything not needed to rebuild a fresh environment
 prepare: ## 🏗 Prepare everything for deployment
 	poetry export --output requirements.txt
 	$(POETRY) run dev/scripts/project_identity.py
+	$(POETRY) run dev/scripts/gen_py_exports.py
+	$(POETRY) run dev/scripts/daemon_route_gen.py
+
+migrate: ## 🐳 Migrate database
+	$(POETRY) run $(ALEMBIC) revision --autogenerate -m "migration_to_be_named"
+
 
 format: backend-format ## 🧺 Format the codebase
 
@@ -169,8 +175,10 @@ serve: ## 🎬 serve client and server separately
 run: ## 🎬 Run server as in production
 	$(POETRY) run $(PYTHON) -c "$$RUN_PYSCRIPT"
 
-dist: clean prepare  backend-build ## 🐳 Create dist files
+.PHONY: dist
+dist: clean prepare migrate backend-build ## 🐳 Create dist files
 
+.PHONY: docs
 docs: ## 📄 Format document and start server
 	$(POETRY) run $(PYTHON) dev/scripts/api_docs_gen.py && \
 	cd docs && $(POETRY) run $(PYTHON) -m mkdocs serve

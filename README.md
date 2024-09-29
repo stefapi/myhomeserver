@@ -1,3 +1,9 @@
+# MyEasyServer
+
+*MyEasyServer helps you to deploy your home web server on a Raspberry Pi or a VPS as easily as possible*
+
+<center><img width="160" src="docs/logo.svg" /></center>
+
 ## Introduction
 
 This is the beginning of a new story: a new platform which will be deployed on a Raspberry Pi or a VPS web applications for your personal use. The goal is to keep the platform as simple as possible for the user.
@@ -15,7 +21,7 @@ Technically, this program is made of several components:
 * a worker service which receives orders through a REST API and executes them.
 * a Command Line Interface (CLI) which allows you to interact with the web application and the worker.
 
-## Features
+## Features 🌈
 
 Features implemented yet:
 

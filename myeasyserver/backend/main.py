@@ -1,19 +1,31 @@
-#  Copyright (c) 2024  stefapi
+#  Copyright (c) 2024.  stef.
 #
-#  Licensed under the Apache License, Version 2.0 (the "License");
-#  you may not use this file except in compliance with the License.
-#  You may obtain a copy of the License at
+#      ______                 _____
+#     / ____/___ ________  __/ ___/___  ______   _____  _____
+#    / __/ / __ `/ ___/ / / /\__ \/ _ \/ ___/ | / / _ \/ ___/
+#   / /___/ /_/ (__  ) /_/ /___/ /  __/ /   | |/ /  __/ /
+#  /_____/\__,_/____/\__, //____/\___/_/    |___/\___/_/
+#                   /____/
 #
-#  http://www.apache.org/licenses/LICENSE-2.0
+#  Apache License
+#  ================
 #
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-#  limitations under the License.
+#   Licensed under the Apache License, Version 2.0 (the "License");
+#   you may not use this file except in compliance with the License.
+#   You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS,
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#   See the License for the specific language governing permissions and
+#   limitations under the License.
+#
+
+import base64
 import signal
 import sys
-from time import sleep
 
 import uvicorn
 import json
@@ -28,15 +40,31 @@ class backend_application(app_class):
 
     default_config = {
         'application': {
+            'db_url': '',
+            'default_group': 'Users',
             'pid_file': '/var/run/' + __software__ + '.pid',
+            'api_docs': '/docs',
+            'api_redoc': '/redoc',
+            'forwarded_allow_ips': ['*'],
+            'secret': '',
+        },
+        'auth': {
+            'ldap': {
+                'enabled': False
+            },
+        },
+        'cors' : {
+            'allow_origins': ['*'],
+            'allow_headers': ['*'],
+            'allow_credentials': True,
+            'allow_methods': ['*'],
         }
     }
 
     params_link = {
         'application.pid_file': ['pid_file', __SOFTWARE__ + '_PID_FILE', 'PID_FILE'],
+        'application.secret': [None, __SOFTWARE__ + '_SECRET', 'SECRET'],
     }
-    def __init__(self):
-        pass
 
     @staticmethod
     def subparser():
@@ -47,8 +75,16 @@ class backend_application(app_class):
         parser.add_argument('--pid_file', default=None, help='pid file')
         parser.add_argument('--daemon', help='start as daemon', action='store_true')
 
-    def test_name(self, name):
+    @staticmethod
+    def test_name(name):
         return name == 'myeasysrv'
+
+    def update_default_config(self,default_config):
+        config = super().update_default_config(default_config)
+        if config['application']['secret'] == '':
+            config['application']['secret'] = base64.b64encode(os.urandom(32)).decode('utf-8')
+        return config
+
     def run(self, config):
 
         # Save here all program parameters for each FastAPI instances
@@ -79,6 +115,8 @@ class backend_application(app_class):
                 serverconf['host'] = config['application.ip_address']
                 serverconf['port'] = config['application.port']
         serverconf['app'] = "%s.backend.webserver:app"%__software__
+
+        serverconf['forwarded_allow_ips'] = config['application.forwarded_allow_ips']
         # Start uvicorn as a daemon
         try:
             if config.args.daemon:

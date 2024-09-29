@@ -59,3 +59,8 @@ def to_type(ref_var, value):
         return float(value)
     elif isinstance(ref_var, str):
         return str(value)
+    elif isinstance(ref_var, list):
+        new_list = []
+        for elem in value:
+            new_list.append(to_type(ref_var[0], elem))
+        return new_list

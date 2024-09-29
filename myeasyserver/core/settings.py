@@ -1,18 +1,27 @@
-#  Copyright (c) 2024  stefapi
+#  Copyright (c) 2024.  stef.
 #
-#  Licensed under the Apache License, Version 2.0 (the "License");
-#  you may not use this file except in compliance with the License.
-#  You may obtain a copy of the License at
+#      ______                 _____
+#     / ____/___ ________  __/ ___/___  ______   _____  _____
+#    / __/ / __ `/ ___/ / / /\__ \/ _ \/ ___/ | / / _ \/ ___/
+#   / /___/ /_/ (__  ) /_/ /___/ /  __/ /   | |/ /  __/ /
+#  /_____/\__,_/____/\__, //____/\___/_/    |___/\___/_/
+#                   /____/
 #
-#  http://www.apache.org/licenses/LICENSE-2.0
+#  Apache License
+#  ================
 #
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-#  limitations under the License.
+#   Licensed under the Apache License, Version 2.0 (the "License");
+#   you may not use this file except in compliance with the License.
+#   You may obtain a copy of the License at
 #
-
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS,
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#   See the License for the specific language governing permissions and
+#   limitations under the License.
+#
 
 import os
 import re
@@ -137,6 +146,20 @@ class AppSettings():
     def __contains__(self, key):
         return self.config.has(*key.split('.'))
 
+    def __iter__(self):
+        return iter(self.config)
+
+    def __next__(self):
+        val = self.config.enumerate()
+
+    def json(self, indent = 4, internal = False):
+        import copy
+        conf = copy.deepcopy(self.config)
+        def get(args):
+            return conf.get(*args)
+        conf.override(get, internal)
+        return json.dumps(conf.config, indent=indent)
+
     def config_calc(self):
 
         # set default parameters
@@ -185,17 +208,17 @@ class AppSettings():
                 path = items if path == None else path+'.'+items
             if path in self.params_link:
                 option = self.params_link[path][0]
-                match = re.findall(r"^([^\[\]]+)(\[([0-9]+)\])?$", option)
-                if len(match) == 0:
-                    return None
-                if option is not None and  hasattr(self.args, match[0][0]):
-                    if len(match[0][1]) == 0:
-                        return getattr(self.args, match[0][0])
-                    else:
-                        arg = getattr(self.args, match[0][0])
-                        if isinstance(arg, list):
-                            return arg[int(match[0][2])]
+                if option is not None:
+                    match = re.findall(r"^([^\[\]]+)(\[([0-9]+)\])?$", option)
+                    if len(match) == 0:
                         return None
+                    if hasattr(self.args, match[0][0]):
+                        if len(match[0][1]) == 0:
+                            return getattr(self.args, match[0][0])
+                        else:
+                            arg = getattr(self.args, match[0][0])
+                            if isinstance(arg, list):
+                                return arg[int(match[0][2])]
             return None
 
         # apply command line options
